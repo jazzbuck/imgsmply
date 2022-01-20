@@ -20,10 +20,8 @@ for path in list_all_tiffs(input_path):
     image_arrays = img.split_samples()
 
     for array, number in zip(image_arrays,range(len(image_arrays))):
-        print(number)
         Image.fromarray(array).save(output_path / path.stem / f"sample{number}.tiff")
     
-    print("got_to_here_1")
 
     Image.fromarray(img.outline_samples(downsample_ratio=conf["downsample_ratio"])).save(output_path / path.stem / "outlined_samples.tiff")
 

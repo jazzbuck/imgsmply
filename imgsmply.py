@@ -117,7 +117,6 @@ class SamplePhoto():
                         downsample_ratio: float = 0.1,
                         grid_colour: list[int] = [255,255,255,255],
                         **kwargs: bool) -> np.ndarray:
-        print("got_to_here_2")
         if downsample_ratio != 1.0:
             image = rescale(self.image_data,
                             downsample_ratio,
@@ -159,7 +158,6 @@ class SamplePhoto():
 
         image = np.floor(image * 255).astype(np.uint8)
 
-        print("got_to_here_3")
 
         return image 
 
