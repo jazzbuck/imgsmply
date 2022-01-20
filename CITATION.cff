@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Newton"
+  given-names: "Alexander"
+title: "imgsmply - create sampling grid for photos"
+version: 0.0.1
+date-released: 2022-01-20
+url: "https://github.com/jazzbuck/imgsmply"
+
