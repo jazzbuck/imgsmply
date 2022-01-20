@@ -1,4 +1,5 @@
 numpy
 scikit-image
 pillow
+pyyaml
 
