@@ -4,6 +4,8 @@ import numpy as np
 from PIL import Image
 
 from typing import List
+from skimage.transform import rescale
+from skimage.draw import line
 
 def list_all_tiffs(path: Path = Path("./")) -> list:
     """
@@ -43,7 +45,7 @@ class SamplePhoto():
         self.grid = np.zeros([self.image_data.shape[1], 
                               self.image_data.shape[0]])
 
-    def create_grid(self, nx, ny):
+    def create_grid(self, nx: int, ny: int):
         """
         Using number of cells creates a grid for the photo and trims the image data.
         """
@@ -109,14 +111,54 @@ class SamplePhoto():
 
     def outline_samples(self,
                         downsample_ratio: float = 0.1,
+                        grid_colour: list[int] = [255,255,255,255],
                         **kwargs: bool) -> np.ndarray:
+        print("got_to_here_2")
+        if downsample_ratio != 1.0:
+            image = rescale(self.image_data,
+                            downsample_ratio,
+                            anti_aliasing=False,
+                            channel_axis = 2)
+            coordinates = self.samples
+            for i in range(len(coordinates)):
+                coordinates[i] = tuple(
+                    (floor(coordinate[0] * downsample_ratio),
+                     floor(coordinate[1] * downsample_ratio)
+                    )
+                    for coordinate in coordinates[i])
 
-        if with_replacement:
-            raise 
-        
+                if coordinates[i][0][0] == coordinates[i][1][0]:
+                    coordinates[i] = (coordinates[i][0],
+                                      (coordinates[i][1][0]+1,coordinates[i][1][1]))
+                if coordinates[i][0][1] == coordinates[i][1][1]:
+                    coordinates[i] = (coordinates[i][0],
+                                      (coordinates[i][1][0], coordinates[i][1][1]+1))
 
 
-        pass
+        else:
+            image = self.image_data
+            coordinates = self.samples
+        if image.shape[2] != len(grid_colour):
+            grid_colour = grid_colour[0:image.shape[2]]
+
+        grid_colour = [i/255 for i in grid_colour]
+
+        for pair in coordinates:
+
+            
+            points = [pair[0],(pair[0][0],pair[1][1]),pair[1],(pair[1][0],pair[0][1])]
+            for i in range(len(points)):
+                ypoints, xpoints = line(*points[i-1],*points[i])
+                colour_array = np.array(grid_colour * len(xpoints))
+                colour_array.shape = (len(ypoints), len(grid_colour))
+                image[ypoints,xpoints,:] = colour_array
+
+        image = np.floor(image * 255).astype(np.uint8)
+
+        print("got_to_here_3")
+
+        return image 
+
 
 
 
