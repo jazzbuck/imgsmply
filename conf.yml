@@ -1,8 +1,8 @@
-input_path: "/home/alexander/Documents/imgsmply/1.2"
+input_path: "/home/alexander/Documents/imgsmply/"
 output_dir: "/home/alexander/Documents/output/"
 pixels_per_mm: 10
-grid: [100,100]
-number_of_samples: 30
+grid: [30,60]
+number_of_samples: 40
 downsample_ratio: 0.1
 seed: 8008
 

@@ -20,6 +20,7 @@ for path in list_all_tiffs(input_path):
     image_arrays = img.split_samples()
 
     for array, number in zip(image_arrays,range(len(image_arrays))):
+        print(number)
         Image.fromarray(array).save(output_path / path.stem / f"sample{number}.tiff")
     
     print("got_to_here_1")

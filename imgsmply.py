@@ -45,7 +45,7 @@ class SamplePhoto():
         self.grid = np.zeros([self.image_data.shape[1], 
                               self.image_data.shape[0]])
 
-    def create_grid(self, nx: int, ny: int):
+    def create_grid(self, ny: int, nx: int):
         """
         Using number of cells creates a grid for the photo and trims the image data.
         """
@@ -83,7 +83,7 @@ class SamplePhoto():
         
         coordinates = []
         for i in range(1,n+1):
-            gridx, gridy = np.where(self.grid == i)
+            gridy, gridx = np.where(self.grid == i)
             top_left = (y_pixels_per_cell * gridy[0],
                         x_pixels_per_cell * gridx[0])
             bottom_right = (y_pixels_per_cell * (gridy[0] + 1) - 1,
@@ -102,10 +102,14 @@ class SamplePhoto():
         coordinates = self.samples
         x_pixels_per_cell = floor(image_data.shape[1] / self.grid.shape[1])
         y_pixels_per_cell = floor(image_data.shape[0] / self.grid.shape[0])
-        list_of_images = [np.zeros((y_pixels_per_cell, x_pixels_per_cell))] * len(coordinates)
+        list_of_images = [np.zeros((y_pixels_per_cell, x_pixels_per_cell, image_data.shape[2]))] * len(coordinates)
 
         for i in range(len(coordinates)):
-            list_of_images[i] = image_data[coordinates[i][0][0]:coordinates[i][1][0]+1, coordinates[i][0][1]:coordinates[i][1][1] + 1]
+            list_of_images[i] = image_data[
+                coordinates[i][0][0]:coordinates[i][1][0] + 1,
+                coordinates[i][0][1]:coordinates[i][1][1] + 1,
+                :
+            ]
 
         return list_of_images
 
