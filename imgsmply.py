@@ -2,6 +2,7 @@ from pathlib import Path
 from math import floor
 import numpy as np
 from PIL import Image
+from copy import deepcopy
 
 from typing import List
 from skimage.transform import rescale
@@ -65,9 +66,14 @@ class SamplePhoto():
         """
         Choose divisions for sample.
         """
-        # reset grid
-        if np.sum(self.grid) != 0:
-            self.grid = np.zeros(self.grid.shape)
+        #reset grid
+        try:
+            if np.sum(self.grid) != 0:
+                self.grid = np.zeros(self.grid.shape)
+        except AttributeError:
+            raise AttributeError("grid not found, try using create_grid() first")
+
+
 
         #kwarg separate images, with replacement
         
@@ -97,9 +103,13 @@ class SamplePhoto():
         """
         Splits samples into multiple arrays and returns them.
         """
-
+        
         image_data = self.image_data
-        coordinates = self.samples
+        try:
+            coordinates = self.samples
+        except AttributeError:
+            raise AttributeError("self.samples do not exist, try using self.sample() first")
+
         x_pixels_per_cell = floor(image_data.shape[1] / self.grid.shape[1])
         y_pixels_per_cell = floor(image_data.shape[0] / self.grid.shape[0])
         list_of_images = [np.zeros((y_pixels_per_cell, x_pixels_per_cell, image_data.shape[2]))] * len(coordinates)
@@ -122,7 +132,7 @@ class SamplePhoto():
                             downsample_ratio,
                             anti_aliasing=False,
                             channel_axis = 2)
-            coordinates = self.samples
+            coordinates = deepcopy(self.samples)
             for i in range(len(coordinates)):
                 coordinates[i] = tuple(
                     (floor(coordinate[0] * downsample_ratio),
@@ -148,7 +158,6 @@ class SamplePhoto():
 
         for pair in coordinates:
 
-            
             points = [pair[0],(pair[0][0],pair[1][1]),pair[1],(pair[1][0],pair[0][1])]
             for i in range(len(points)):
                 ypoints, xpoints = line(*points[i-1],*points[i])
@@ -157,7 +166,6 @@ class SamplePhoto():
                 image[ypoints,xpoints,:] = colour_array
 
         image = np.floor(image * 255).astype(np.uint8)
-
 
         return image 
 
