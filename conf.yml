@@ -1,8 +1,10 @@
-input_path: "/home/alexander/Documents/imgsmply/"
-output_dir: "/home/alexander/Documents/output/"
+input_path: "./dontlookinhere"
+output_dir: "/home/alexander/Documents/lookinhere"
 pixels_per_mm: 10
-grid: [30,60]
-number_of_samples: 40
-downsample_ratio: 0.1
+# grid_number: [10,10]
+grid_size: [10,10]
+number_of_samples: 10
+downsample_ratio: 0.5
 seed: 8008
+how: "rowwise"
 

@@ -46,22 +46,36 @@ class SamplePhoto():
         self.grid = np.zeros([self.image_data.shape[1], 
                               self.image_data.shape[0]])
 
-    def create_grid(self, ny: int, nx: int):
+    def create_grid(self, 
+                    ny: int = 0, 
+                    nx: int = 0,
+                    sizex: int = 0,
+                    sizey: int = 0,
+                    ):
         """
         Using number of cells creates a grid for the photo and trims the image data.
         """
         x_pixels = self.image_data.shape[1]
         y_pixels = self.image_data.shape[0]
-        x = floor(x_pixels/nx)
-        y = floor(y_pixels/ny)
+        if (ny != 0) and (nx != 0):
+            x = floor(x_pixels/nx)
+            y = floor(y_pixels/ny)
+        elif (sizex != 0) and (sizey !=0):
+            x = sizex
+            y = sizey
+            nx = floor(x_pixels/x)
+            ny = floor(y_pixels/y)
+        else:
+            raise KeyError("Expected either [x,y] arguments or [sizex, sizey] arguments")
 
         self.grid = np.zeros([ny,nx])
-        # discard data from the bottom right - ask Yas
+        # discard data from the bottom and right - ask Yas
         self.image_data = self.image_data[0:y * ny, 0:x * nx, :]
 
     def sample(self, 
                n: int, 
                seed: int=8008135,
+               how: str="simple",
                **kwargs: bool):
         """
         Choose divisions for sample.
@@ -78,9 +92,26 @@ class SamplePhoto():
         #kwarg separate images, with replacement
         
         # generate sample on grid
+        
         np.random.seed(seed)
-        indices = np.random.choice(np.arange(self.grid.size), replace=False, size=n,)
-        self.grid[np.unravel_index(indices,self.grid.shape)] = list(range(1, n+1)) 
+
+        indices = []
+
+        if how == "simple":
+            indices = np.random.choice(np.arange(self.grid.size), replace=False, size=n,)
+
+        if how == "rowwise":
+            indices = np.zeros(n * self.grid.shape[0], dtype=int)
+            for index in range(self.grid.shape[0]):
+                indices[index * n:(index + 1) * n] = np.random.choice(
+                    np.arange(self.grid.shape[1]) + self.grid.shape[1] * index,
+                    replace=False,
+                    size=n,
+                )
+
+        
+        
+        self.grid[np.unravel_index(indices,self.grid.shape)] = list(range(1, len(indices)+1)) 
         # from grid calculate stop/start and return tuples of top left and bottom right corners
         x_pixels = self.image_data.shape[1]
         y_pixels = self.image_data.shape[0]
@@ -88,7 +119,7 @@ class SamplePhoto():
         y_pixels_per_cell = floor(y_pixels / self.grid.shape[0])
         
         coordinates = []
-        for i in range(1,n+1):
+        for i in range(1,len(indices)+1):
             gridy, gridx = np.where(self.grid == i)
             top_left = (y_pixels_per_cell * gridy[0],
                         x_pixels_per_cell * gridx[0])
@@ -139,13 +170,25 @@ class SamplePhoto():
                      floor(coordinate[1] * downsample_ratio)
                     )
                     for coordinate in coordinates[i])
-
+                
+                # check if top-left of box is same coordinates as bottom-right and add 1 if they are
                 if coordinates[i][0][0] == coordinates[i][1][0]:
                     coordinates[i] = (coordinates[i][0],
-                                      (coordinates[i][1][0]+1,coordinates[i][1][1]))
+                                      (coordinates[i][0][0]+1,coordinates[i][1][1]))
                 if coordinates[i][0][1] == coordinates[i][1][1]:
                     coordinates[i] = (coordinates[i][0],
-                                      (coordinates[i][1][0], coordinates[i][1][1]+1))
+                                      (coordinates[i][1][0], coordinates[i][0][1]+1))
+
+                # check if bottom-right of box is outside bounds and take away 1 if it is
+
+                if coordinates[i][1][0] == image.shape[0]:
+                    coordinates[i] = (
+                        (coordinates[i][0][0] - 1, coordinates[i][0][1]),
+                        (coordinates[i][1][0] - 1, coordinates[i][1][1]))
+                if coordinates[i][1][1] == image.shape[1]:
+                    coordinates[i] = (
+                        (coordinates[i][0][0], coordinates[i][0][1] - 1),
+                        (coordinates[i][1][0], coordinates[i][1][1] - 1))
 
 
         else:

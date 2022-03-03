@@ -15,8 +15,15 @@ for path in list_all_tiffs(input_path):
     (output_path / path.stem).mkdir(parents=True, exist_ok=True)
 
     img = SamplePhoto(path, scale=conf["pixels_per_mm"])
-    img.create_grid(*conf["grid"])
-    img.sample(conf["number_of_samples"], seed=seed)
+    if "grid_number" in conf:
+        img.create_grid(nx=conf["grid_number"][0],
+                        ny=conf["grid_number"][1],
+                        )
+    elif "grid_size" in conf:
+        img.create_grid(sizex=conf["grid_size"][0],
+                        sizey=conf["grid_size"][1],
+                        )
+    img.sample(conf["number_of_samples"], how=conf["how"], seed=seed)
     image_arrays = img.split_samples()
 
     for array, number in zip(image_arrays,range(len(image_arrays))):
