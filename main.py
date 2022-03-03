@@ -16,12 +16,12 @@ for path in list_all_tiffs(input_path):
 
     img = SamplePhoto(path, scale=conf["pixels_per_mm"])
     if "grid_number" in conf:
-        img.create_grid(nx=conf["grid_number"][0],
-                        ny=conf["grid_number"][1],
+        img.create_grid(ny=conf["grid_number"][0],
+                        nx=conf["grid_number"][1],
                         )
     elif "grid_size" in conf:
-        img.create_grid(sizex=conf["grid_size"][0],
-                        sizey=conf["grid_size"][1],
+        img.create_grid(sizey=conf["grid_size"][0],
+                        sizex=conf["grid_size"][1],
                         )
     img.sample(conf["number_of_samples"], how=conf["how"], seed=seed)
     image_arrays = img.split_samples()
